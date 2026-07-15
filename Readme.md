@@ -31,12 +31,13 @@ storybook-api/
 ├── src/
 │   ├── app/
 │   ├── config/
+│   ├── controller/
 │   ├── integrations/
-│   ├── middleware/
-│   ├── modules/
-│   ├── prisma/
-│   ├── queue/
-│   └── shared/
+│   │   └── aws/
+│   ├── routes/
+│   │   ├── public/
+│   │   └── protected/
+│   └── service/
 │
 ├── tests/
 ├── docs/
@@ -97,7 +98,13 @@ http://localhost:3000
 Health Check:
 
 ```
-GET /api/health
+GET /api/public/health
+```
+
+S3 Status Check:
+
+```bash
+GET /api/protected/s3/status
 ```
 
 ---
@@ -142,7 +149,15 @@ PORT=3000
 NODE_ENV=development
 
 DATABASE_URL=postgresql://postgres:postgres@postgres:5432/storybook
+
+AWS_REGION=eu-north-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_S3_BUCKET=storybook-api-bucket
+AWS_S3_PREFIX=uploads
 ```
+
+The app loads `.env` first and falls back to `.env.example` for local development if `.env` is missing.
 
 ---
 
@@ -157,6 +172,31 @@ Success
   "success": true,
   "message": "Request completed successfully.",
   "data": {},
+  "meta": null
+}
+```
+
+S3 Status Success
+
+```json
+{
+  "success": true,
+  "message": "S3 connection successful",
+  "data": {
+    "bucket": "storybook-api-bucket",
+    "region": "eu-north-1"
+  },
+  "meta": null
+}
+```
+
+S3 Status Error
+
+```json
+{
+  "success": false,
+  "message": "S3 connection failed",
+  "data": null,
   "meta": null
 }
 ```
@@ -183,7 +223,7 @@ Error
 - Thin Controllers
 - Business Logic inside Services
 - Database access only through Repositories
-- Feature-based module architecture
+- Layer-based architecture with public/protected routes
 - Centralized error handling
 - Structured logging using Pino
 - Validation before business logic
