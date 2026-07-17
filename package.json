@@ -2,6 +2,7 @@
   "name": "storybook-api",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/app/server.ts",
     "build": "tsc",
@@ -13,17 +14,22 @@
   "description": "",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1085.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@types/multer": "^2.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "multer": "^2.2.0",
+    "pg": "^8.22.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
     "nodemon": "^3.1.14",
+    "prisma": "^7.8.0",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"
   }
