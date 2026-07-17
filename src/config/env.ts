@@ -18,4 +18,8 @@ export const env = {
     s3Bucket: process.env.AWS_S3_BUCKET || "",
     s3Prefix: process.env.AWS_S3_PREFIX || "",
   },
+  postgres: {
+    databaseURL: process.env.DATABASE_URL || "",
+    directURL: process.env.DIRECT_URL || ""
+  }
 };
