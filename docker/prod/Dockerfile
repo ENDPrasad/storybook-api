@@ -10,6 +10,9 @@ RUN npm ci
 
 COPY . .
 
+# Generate Prisma client before compiling TypeScript
+RUN npx prisma generate
+
 RUN npm run build
 
 # ---------- Runtime Stage ----------
@@ -24,7 +27,11 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
+# Copy compiled app
 COPY --from=builder /app/dist ./dist
+
+# Copy generated Prisma client (lives outside src/, not included in dist/)
+COPY --from=builder /app/prisma/generated ./prisma/generated
 
 EXPOSE 3000
 

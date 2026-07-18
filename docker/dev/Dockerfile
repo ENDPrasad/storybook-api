@@ -4,9 +4,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
+
+# Generate Prisma client (prisma/generated is gitignored so must be built here)
+RUN npx prisma generate
 
 EXPOSE 3000
 

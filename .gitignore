@@ -97,3 +97,12 @@ npm-cache/
 *.crt
 
 /prisma/generated
+
+# =====================================================
+# Replit
+# =====================================================
+.replit
+replit.md
+.local/
+.agents/
+.cache/replit/

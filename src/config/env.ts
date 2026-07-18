@@ -20,6 +20,6 @@ export const env = {
   },
   postgres: {
     databaseURL: process.env.DATABASE_URL || "",
-    directURL: process.env.DIRECT_URL || ""
+    directURL: process.env.DIRECT_URL || process.env.DATABASE_URL || "",
   }
 };

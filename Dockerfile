@@ -13,6 +13,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Generate Prisma client (prisma/generated is gitignored so must be built here)
+RUN npx prisma generate
+
 # Expose API Port
 EXPOSE 3000
 
