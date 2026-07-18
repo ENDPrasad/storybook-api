@@ -15,7 +15,7 @@ Backend API for the **AI Personalized Storybook Platform**, where parents can up
 - **Pino Logger**
 - **BullMQ** _(Coming Soon)_
 - **Redis** _(Coming Soon)_
-- **AWS S3** _(Coming Soon)_
+- **AWS S3**
 
 ---
 
@@ -110,6 +110,18 @@ S3 Status Check:
 
 ```bash
 GET /api/protected/s3/status
+```
+
+S3 upload Image:
+
+```bash
+POST /api/protected/s3/upload
+```
+
+S3 get Image:
+
+```bash
+POST /api/protected/s3/image/uploads/123-456-789/37efcd06-d607-45c5-acae-a8a1608672bb.avif
 ```
 
 ---
