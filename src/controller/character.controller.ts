@@ -1,37 +1,15 @@
-import multer from 'multer';
 import { Request, Response } from 'express';
 import { createCharacter, getCharacter } from '../service/character.service.js';
 
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
-});
-
-export const uploadCharacterImageMiddleware = upload.single('image');
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20MB
 
 export const createCharacterHandler = async (req: Request, res: Response): Promise<Response> => {
-  if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      message: 'No image file provided. Use field name: image',
-      data: null,
-      meta: null,
-    });
-  }
+  const { orderId, name, gender, age, hobbies, storyRole, customMessage, image } = req.body ?? {};
 
-  if (!req.file.mimetype.startsWith('image/')) {
-    return res.status(400).json({
-      success: false,
-      message: 'Only image uploads are allowed',
-      data: null,
-      meta: null,
-    });
-  }
-
-  const { orderId, name, gender, age, hobbies, storyRole, customMessage } = req.body as Record<string, string>;
-
-  const missing = ['orderId', 'name', 'gender', 'age', 'hobbies', 'storyRole', 'customMessage'].filter(
-    (f) => !req.body[f]
+  // Validate text fields
+  const missing = ['orderId', 'name', 'gender', 'age', 'hobbies', 'storyRole', 'customMessage', 'image'].filter(
+    (f) => !req.body?.[f]
   );
 
   if (missing.length > 0) {
@@ -53,6 +31,37 @@ export const createCharacterHandler = async (req: Request, res: Response): Promi
     });
   }
 
+  // Validate image object
+  if (!image.data || !image.mimeType || !image.originalName) {
+    return res.status(400).json({
+      success: false,
+      message: 'image must include data (base64), mimeType, and originalName',
+      data: null,
+      meta: null,
+    });
+  }
+
+  if (!ALLOWED_MIME_TYPES.includes(image.mimeType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Unsupported image type. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}`,
+      data: null,
+      meta: null,
+    });
+  }
+
+  // Decode base64 → Buffer
+  const buffer = Buffer.from(image.data, 'base64');
+
+  if (buffer.byteLength > MAX_FILE_SIZE_BYTES) {
+    return res.status(400).json({
+      success: false,
+      message: 'Image exceeds the 20MB size limit',
+      data: null,
+      meta: null,
+    });
+  }
+
   const result = await createCharacter({
     orderId,
     name,
@@ -62,9 +71,9 @@ export const createCharacterHandler = async (req: Request, res: Response): Promi
     storyRole,
     customMessage,
     image: {
-      originalName: req.file.originalname,
-      mimeType: req.file.mimetype,
-      buffer: req.file.buffer,
+      originalName: image.originalName,
+      mimeType: image.mimeType,
+      buffer,
     },
   });
 
