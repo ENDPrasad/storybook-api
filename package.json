@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/app/server.ts",
+    "dev": "tsx watch --env-file-if-exists .env src/app/server.ts",
     "build": "tsc",
     "start": "node dist/app/server.js"
   },

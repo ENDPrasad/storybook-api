@@ -14,7 +14,34 @@ datasource db {
 
 
 model User {
-  id Int @id @default(autoincrement())
+  id    Int    @id @default(autoincrement())
   email String @unique
-  name String
+  name  String
+}
+
+model Character {
+  id            String           @id @default(uuid())
+  orderId       String
+  name          String
+  gender        String
+  age           Int
+  hobbies       String
+  storyRole     String
+  customMessage String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  images        CharacterImage[]
+
+  @@map("character")
+}
+
+model CharacterImage {
+  id          String    @id @default(uuid())
+  characterId String
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@map("character_images")
 }
