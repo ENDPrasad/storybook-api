@@ -38,7 +38,7 @@ model Character {
 model CharacterImage {
   id          String    @id @default(uuid())
   characterId String
-  imageUrl    String
+  s3Key       String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)

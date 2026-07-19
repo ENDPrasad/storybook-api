@@ -1,6 +1,7 @@
 import { prisma } from '../integrations/lib/prisma.js';
 import { logger } from '../config/logger.js';
 import { uploadImageToS3 } from './s3.service.js';
+import { env } from '../config/env.js';
 
 type CreateCharacterInput = {
   orderId: string;
@@ -35,7 +36,7 @@ export const createCharacter = async (input: CreateCharacterInput) => {
       };
     }
 
-    const imageUrl = uploadResult.data.url;
+    const s3Key = uploadResult.data.key;
 
     // 2. Create character + character_image atomically
     const result = await prisma.$transaction(async (tx) => {
@@ -54,7 +55,7 @@ export const createCharacter = async (input: CreateCharacterInput) => {
       const characterImage = await tx.characterImage.create({
         data: {
           characterId: character.id,
-          imageUrl,
+          s3Key,
         },
       });
 
@@ -118,7 +119,8 @@ export const getCharacter = async (id: string) => {
         createdAt: character.createdAt,
         images: character.images.map((img) => ({
           id: img.id,
-          imageUrl: img.imageUrl,
+          imageUrl: `https://${env.aws.s3Bucket}.s3.${env.aws.region}.amazonaws.com/${img.s3Key}`,
+          s3Key: img.s3Key,
           createdAt: img.createdAt,
         })),
       },
