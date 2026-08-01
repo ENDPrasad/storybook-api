@@ -1,6 +1,6 @@
-import app from "./app";
-import { env } from "../config/env";
-import { logger } from "../config/logger";
+import app from "./app.js";
+import { env } from "../config/env.js";
+import { logger } from "../config/logger.js";
 
 app.listen(env.port, () => {
   logger.info(`Server started on port ${env.port}`);
