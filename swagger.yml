@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: http://localhost:3000/api
     description: Local Development
 
 tags:
@@ -15,6 +15,7 @@ tags:
   - name: Orders
   - name: Payments
   - name: Admin
+  - name: Characters
 
 paths:
   /health:
@@ -252,6 +253,71 @@ paths:
         "200":
           description: Status updated
 
+  /protected/character:
+    post:
+      tags:
+        - Characters
+      summary: Create a character with an uploaded image
+      description: Uploads the image to S3 and stores the returned S3 object key in character_images.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/CreateCharacterRequest"
+      responses:
+        "201":
+          description: Character created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterCreatedResponse"
+        "400":
+          description: Invalid request or missing image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Character creation or S3 upload failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+  /protected/character/{id}:
+    get:
+      tags:
+        - Characters
+      summary: Get character details and images
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Character UUID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Character fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterResponse"
+        "404":
+          description: Character not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "500":
+          description: Character fetch failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
 components:
   schemas:
     ApiResponse:
@@ -331,3 +397,128 @@ components:
 
                 paymentUrl:
                   type: string
+
+    CreateCharacterRequest:
+      type: object
+      required:
+        - orderId
+        - name
+        - gender
+        - age
+        - hobbies
+        - storyRole
+        - customMessage
+        - image
+      properties:
+        orderId:
+          type: string
+          example: order-103
+        name:
+          type: string
+          example: Rahul
+        gender:
+          type: string
+          example: male
+        age:
+          type: integer
+          minimum: 0
+          example: 10
+        hobbies:
+          type: string
+          example: football,reading
+        storyRole:
+          type: string
+          example: hero
+        customMessage:
+          type: string
+          example: Great job Rahul!
+        image:
+          type: string
+          format: binary
+          description: Image file uploaded to S3 by the API.
+
+    CharacterCreatedResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/CharacterText"
+
+    CharacterResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/components/schemas/CharacterDetails"
+
+    CharacterText:
+      type: object
+      required:
+        - orderId
+        - name
+        - gender
+        - age
+        - hobbies
+        - storyRole
+        - customMessage
+      properties:
+        orderId:
+          type: string
+        name:
+          type: string
+        gender:
+          type: string
+        age:
+          type: integer
+        hobbies:
+          type: string
+        storyRole:
+          type: string
+        customMessage:
+          type: string
+
+    CharacterDetails:
+      allOf:
+        - $ref: "#/components/schemas/CharacterText"
+        - type: object
+          required:
+            - id
+            - createdAt
+            - images
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+            images:
+              type: array
+              items:
+                $ref: "#/components/schemas/CharacterImage"
+
+    CharacterImage:
+      type: object
+      required:
+        - id
+        - imageUrl
+        - s3Key
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        imageUrl:
+          type: string
+          format: uri
+          description: S3 URL derived from s3Key at response time.
+        s3Key:
+          type: string
+          example: uploads/123-456-789/37efcd06-d607-45c5-acae-a8a1608672bb.png
+          description: S3 object key persisted in character_images.
+        createdAt:
+          type: string
+          format: date-time

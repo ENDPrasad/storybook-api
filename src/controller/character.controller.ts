@@ -83,7 +83,7 @@ export const getCharacterHandler = async (req: Request, res: Response): Promise<
     });
   }
 
-  const result = await getCharacter(id);
+  const result = await getCharacter(typeof id === 'string' ? id : id[0]);
 
   return res.status(result.success ? 200 : (result.message === 'Character not found' ? 404 : 500)).json(result);
 };
